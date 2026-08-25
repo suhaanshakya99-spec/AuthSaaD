@@ -1,4 +1,5 @@
 from redis.asyncio import Redis
+import asyncio
 
 '''
 docker run -d \
@@ -8,3 +9,5 @@ docker run -d \
 '''
 
 redis_client = Redis(host="localhost", port=6379, db=0, decode_responses=True)
+
+

@@ -6,10 +6,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 import secrets
 from schemas.developer_schemas import (CreateDeveloper, CreateProject)
 from core.auth import (hash_password, create_access_token, create_refresh_token, password_verify, get_current_developer)
-from models.postgres_models import (Developers, Projects)
+from models.postgres_models import (Developers, Projects, Tokens)
 from core.redis_client import redis_client
 from core.celery import (sending_verification_mail)
-
+import secrets
+from datetime import datetime, timezone
 
 
 async def register_developer(data:CreateDeveloper, db:AsyncSession):
@@ -32,7 +33,15 @@ async def register_developer(data:CreateDeveloper, db:AsyncSession):
     redis_key = f"developer_access_token:{access_token}"
     await redis_client.set(name=redis_key, value=str(new_developer.email), ex=300)
 
-    sending_verification_mail.delay(new_developer.email, 'This is Verification Link')
+    verification_token = secrets.token_urlsafe(32)
+    hashed_token = hash_password(verification_token)
+
+    token = Tokens(developer_id=new_developer.id, token_hashed=hashed_token, token_type="Verification")
+
+    db.add(token)
+    await db.commit()
+
+    sending_verification_mail.delay(verification_token, new_developer.email)
 
     return response
 
@@ -66,20 +75,22 @@ async def login_develepor(data:OAuth2PasswordRequestForm, db:AsyncSession):
 
     raise HTTPException(status_code=401, detail="Developer details invalid.")
 
-#Create a project
-async def create_project(data:CreateProject, db:AsyncSession, developer:Developers):
 
-    plain_API = secrets.token_urlsafe(32)
 
-    project = Projects(project_name=data.project_name, developer_id=developer.id, api=plain_API)
+async def verify_verification_token(token:str, db:AsyncSession, developer:Developers):
 
-    db.add(project)
-    await db.commit()
-    await db.refresh(project)
+    stmt = select(Tokens).where(Tokens.developer_id==developer.id, Tokens.token_type=="Verification", Tokens.used_at==None).order_by(Tokens.created_at.desc())
+    result = await db.execute(stmt)
+    token_from_db = result.scalar_one_or_none()
 
-    result = {"project_id":project.id,
-              "developer_id":project.developer,
-              "API":plain_API}
+    if token_from_db is None:
+        raise HTTPException(status_code=404, detail="Developer not found")
 
-    return result
+    if password_verify(token, token_from_db.token_hashed):
+        token_from_db.used_at = datetime.now(timezone.utc)
+        await db.commit()
+
+    return {"message":"Verification done"}
+
+
 

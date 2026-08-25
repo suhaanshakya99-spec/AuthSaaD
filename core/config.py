@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     BROKER_URL:str
     BACKEND_URL:str
 
+    BREVO_API:str
+
 
     model_config = SettingsConfigDict(env_file=".env")
 
