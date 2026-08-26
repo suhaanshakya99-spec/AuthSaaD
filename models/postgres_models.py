@@ -15,7 +15,7 @@ class Developers(Base):
     created_at:Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now)
     updated_at:Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    projects:Mapped[list["Projects"]] = relationship("Projects", back_populates="developer")
+    projects:Mapped[list["Projects"]] = relationship("Projects", back_populates="developer", cascade="all, delete-orphan", passive_deletes=True)
 
 class Projects(Base):
 
@@ -29,7 +29,7 @@ class Projects(Base):
     updated_at:Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
     developer:Mapped["Developers"] = relationship("Developers", back_populates="projects")
-    users:Mapped[list["End_Users"]] = relationship("End_Users", back_populates="app")
+    users:Mapped[list["End_Users"]] = relationship("End_Users", back_populates="app", cascade="all, delete-orphan", passive_deletes=True)
 
 
 class End_Users(Base):
@@ -37,7 +37,7 @@ class End_Users(Base):
     __tablename__ = "end_users"
 
     id:Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
-    project_id:Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)
+    project_id:Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
     email:Mapped[str] = mapped_column(index=True, unique=True)
     name:Mapped[str] = mapped_column()
     user_end_hashedpass:Mapped[str] = mapped_column()

@@ -36,6 +36,8 @@ async def register_developer(data:CreateDeveloper, db:AsyncSession):
     verification_token = secrets.token_urlsafe(32)
     hashed_token = hash_password(verification_token)
 
+    print(verification_token)
+
     token = Tokens(developer_id=new_developer.id, token_hashed=hashed_token, token_type="Verification")
 
     db.add(token)
@@ -88,6 +90,7 @@ async def verify_verification_token(token:str, db:AsyncSession, developer:Develo
 
     if password_verify(token, token_from_db.token_hashed):
         token_from_db.used_at = datetime.now(timezone.utc)
+        developer.verified = True
         await db.commit()
 
     return {"message":"Verification done"}

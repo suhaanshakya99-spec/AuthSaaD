@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from datetime import (datetime, timedelta)
 from fastapi import (Depends, HTTPException)
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import APIKeyHeader
 import json
 from dependency.db import get_session
 from core.redis_client import (redis_client)
@@ -45,7 +46,8 @@ def password_verify(user_entered_password, db_hashed_password):
     return password_util.verify(user_entered_password, db_hashed_password)
 
 
-oauth_schema = OAuth2PasswordBearer(tokenUrl="developers/login")
+developer_oauth_schema = OAuth2PasswordBearer(tokenUrl="developers/login", scheme_name="Developers")
+api_from_header = APIKeyHeader(name="API from header", auto_error=True)
 
 def decode_token(token:str):
     decoded_token = jwt.decode(token, algorithms=[settings.ALGORITHM], key=settings.KEY)
@@ -59,7 +61,7 @@ async def get_developer_Byemail(email:str, db:AsyncSession):
     return developer
 
 
-async def get_current_developer(access_token:str=Depends(oauth_schema), db:AsyncSession=Depends(get_session)):
+async def get_current_developer(access_token:str=Depends(developer_oauth_schema), db:AsyncSession=Depends(get_session)):
 
     redis_key = f"access_token:{access_token}"
     cached_developer_payload = await redis_client.get(redis_key)

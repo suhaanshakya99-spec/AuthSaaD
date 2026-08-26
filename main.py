@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import secrets
-
+from routers.API_router import router as API_router
 from db.database import (engine, Base)
 from models.postgres_models import (Developers)
 from routers.developer_router import router as developer_router
@@ -35,6 +35,7 @@ async def lifecycle(app:FastAPI):
 
 app = FastAPI(title="Auth System", lifespan=lifecycle)
 app.include_router(developer_router)
+app.include_router(API_router)
 
 
 @app.get("/")
