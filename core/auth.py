@@ -47,7 +47,7 @@ def password_verify(user_entered_password, db_hashed_password):
 
 
 developer_oauth_schema = OAuth2PasswordBearer(tokenUrl="developers/login", scheme_name="Developers")
-api_from_header = APIKeyHeader(name="API from header", auto_error=True)
+api_from_header = APIKeyHeader(name="API-key", auto_error=True)
 
 def decode_token(token:str):
     decoded_token = jwt.decode(token, algorithms=[settings.ALGORITHM], key=settings.KEY)
