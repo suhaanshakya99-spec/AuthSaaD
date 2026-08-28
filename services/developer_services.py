@@ -4,7 +4,7 @@ import json
 from sqlalchemy import (select)
 from fastapi.security import OAuth2PasswordRequestForm
 import secrets
-from schemas.developer_schemas import (CreateDeveloper, CreateProject)
+from schemas.developer_schemas import (CreateDeveloper)
 from core.auth import (hash_password, create_access_token, create_refresh_token, password_verify, get_current_developer)
 from models.postgres_models import (Developers, Projects, Tokens)
 from core.redis_client import redis_client

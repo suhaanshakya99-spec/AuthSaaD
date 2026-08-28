@@ -6,7 +6,7 @@ from typing import cast
 import httpx
 
 
-celery = Celery(namespace="app",
+celery = Celery(namespace="Worker1",
                  broker=settings.BROKER_URL,
                  backend=settings.BACKEND_URL)
 

@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import (OAuth2PasswordRequestForm)
 from models.postgres_models import (Developers, Projects)
 from services.developer_services import (register_developer, login_develepor, verify_verification_token)
-from schemas.developer_schemas import (CreateDeveloper, CreateProject)
+from schemas.developer_schemas import (CreateDeveloper)
 from dependency.db import (get_session)
 from core.auth import (get_current_developer)
 
