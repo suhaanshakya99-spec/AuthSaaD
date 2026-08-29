@@ -5,7 +5,7 @@ from models.postgres_models import (Developers, Projects)
 from services.developer_services import (register_developer, login_develepor, verify_verification_token)
 from schemas.developer_schemas import (CreateDeveloper)
 from dependency.db import (get_session)
-from core.auth import (get_current_developer)
+from core.auth import (get_current_developer, verify_refresh_token)
 
 router = APIRouter(prefix="/developers", tags=["Developer"])
 
@@ -24,3 +24,10 @@ async def developers_login(data:OAuth2PasswordRequestForm=Depends(), db:AsyncSes
 async def verifydeveloper(token:str, developer:Developers=Depends(get_current_developer), db:AsyncSession=Depends(get_session)):
     result = await verify_verification_token(token, db, developer)
     return result
+
+
+@router.post("/verfiy-refresh_token")
+async def validate_refresh_token(token:str, db:AsyncSession=Depends(get_session)):
+    result = await verify_refresh_token(token, db)
+    return result
+

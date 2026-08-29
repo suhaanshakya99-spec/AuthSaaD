@@ -4,7 +4,7 @@ from models.postgres_models import (Developers)
 from sqlalchemy import (select)
 from core.config import settings
 from fastapi.security import OAuth2PasswordBearer
-from datetime import (datetime, timedelta)
+from datetime import (datetime, timedelta, timezone)
 from fastapi import (Depends, HTTPException)
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import APIKeyHeader
@@ -47,7 +47,8 @@ def password_verify(user_entered_password, db_hashed_password):
 
 
 developer_oauth_schema = OAuth2PasswordBearer(tokenUrl="developers/login", scheme_name="Developers")
-api_from_header = APIKeyHeader(name="API-key", auto_error=True)
+api_from_header = APIKeyHeader(name="api-key", auto_error=True)
+enduser_oauth_schema = OAuth2PasswordBearer(tokenUrl="/end-user/login", scheme_name="End-User")
 
 def decode_token(token:str):
     decoded_token = jwt.decode(token, algorithms=[settings.ALGORITHM], key=settings.KEY)
@@ -84,3 +85,21 @@ async def get_current_developer(access_token:str=Depends(developer_oauth_schema)
 
     return developer
 
+
+async def verify_refresh_token(refresh_token:str, db:AsyncSession)->str:
+
+    payload = decode_token(refresh_token)
+
+    if payload is None:
+        raise HTTPException(status_code=401, detail="wrong credentials")
+
+    developer_email = payload.get("email")
+
+    stmt = select(Developers).where(Developers.email == developer_email)
+    result = await db.execute(stmt)
+    developer = result.scalar_one_or_none()
+
+    if developer is None:
+        raise HTTPException(status_code=404, detail="developer not found.")
+
+    return create_access_token(payload)

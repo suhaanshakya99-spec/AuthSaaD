@@ -38,10 +38,13 @@ def _sending_verification_mail(verification_token:str, receiver_email:str):
                 <p>This link expires in 30 minutes.</p>
             </body>
         </html>
-        """,
+        """
     )
     return result.message_id
 
 sending_verification_mail = cast(Task, _sending_verification_mail)
+
+
+
 
     

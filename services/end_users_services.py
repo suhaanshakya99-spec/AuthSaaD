@@ -5,8 +5,8 @@ from sqlalchemy import (select, delete)
 from fastapi.security import OAuth2PasswordRequestForm
 import secrets
 from schemas.project_schemas import (UpdateProject, CreateProject)
-from schemas.end__user_schemas import (CreateEndUser)
-from core.auth import (hash_password, create_access_token, create_refresh_token, password_verify, get_current_developer)
+from schemas.end__user_schemas import (CreateEndUser, UpdateEndUser)
+from core.auth import (hash_password, create_access_token, create_refresh_token, password_verify, get_current_developer, enduser_oauth_schema)
 from models.postgres_models import (Developers, Projects, End_Users, Tokens)
 from core.redis_client import redis_client
 from core.celery import (sending_verification_mail)
@@ -61,3 +61,33 @@ async def create_user(api_key:str, developer:Developers, db:AsyncSession, data:C
     await redis_client.set(name=redis_name, value=json_encoded_redis, ex=300)
 
     return response
+
+
+async def login(api_key:str, data:OAuth2PasswordRequestForm, db:AsyncSession):
+
+    login_email = data.username
+
+    stmt = select(End_Users).where(End_Users.email == login_email)
+    result = await db.execute(stmt)
+    end_user = result.scalar_one_or_none()
+
+    if end_user is None:
+        raise HTTPException(status_code=401, detail="wrong credentials")
+
+    result = password_verify(data.password, end_user.user_end_hashedpass)
+
+    if result:
+        payload = payload = {"id":end_user.id, "email":end_user.email}
+
+        access_token = create_access_token(payload)
+        refresh_token = create_refresh_token(payload)
+
+        redis_name = f"access_token:{access_token}"
+        redis_dict = {"id":end_user.id, "email":end_user.email, "project_id":end_user.project_id}
+        json_encoded = json.dumps(redis_dict)
+
+        await redis_client.set(name=redis_name, value=json_encoded, ex=300)
+
+        response =  {"access_token":access_token, "refresh_token":refresh_token, "token_type":"bearer"}
+
+        return response

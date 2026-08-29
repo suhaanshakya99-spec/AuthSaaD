@@ -86,7 +86,10 @@ async def verify_verification_token(token:str, db:AsyncSession, developer:Develo
     token_from_db = result.scalar_one_or_none()
 
     if token_from_db is None:
-        raise HTTPException(status_code=404, detail="Developer not found")
+        raise HTTPException(status_code=404, detail="developer not found")
+
+    if token_from_db.expires_at <= datetime.now(timezone.utc):
+        raise HTTPException(status_code=401, detail="verfication has expired")
 
     if password_verify(token, token_from_db.token_hashed):
         token_from_db.used_at = datetime.now(timezone.utc)
