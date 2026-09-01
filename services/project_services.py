@@ -11,7 +11,7 @@ from models.postgres_models import (Developers, Projects, End_Users, Tokens)
 from core.redis_client import redis_client
 from core.celery import (sending_verification_mail)
 
-#apikey = TN-hkj8IIaAXqY61umNkGEfmniobj0eVhOZuRZaWjFg
+#apikey = EnxskzdEfnjUttD6zKzO9hFTnnKEoL5DSeHqmURmdwM
 
 
 #Create a project

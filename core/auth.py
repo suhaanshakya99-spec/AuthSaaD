@@ -1,6 +1,6 @@
 import jwt
 import pwdlib
-from models.postgres_models import (Developers)
+from models.postgres_models import (Developers, End_Users)
 from sqlalchemy import (select)
 from core.config import settings
 from fastapi.security import OAuth2PasswordBearer
@@ -103,3 +103,24 @@ async def verify_refresh_token(refresh_token:str, db:AsyncSession)->str:
         raise HTTPException(status_code=404, detail="developer not found.")
 
     return create_access_token(payload)
+
+
+async def get_current_user(access_token:str=Depends(enduser_oauth_schema), db:AsyncSession=Depends(get_session)):
+
+    redis_key = f"access_token:{access_token}"
+    cached_data = await redis_client.get(redis_key)
+    if cached_data:
+        json_dumped = json.loads(cached_data)
+        return json_dumped
+
+    payload = decode_token(access_token)
+    email = payload.get("email")
+    stmt = select(End_Users).where(End_Users.email==email)
+    result = await db.execute(stmt)
+    end_user = result.scalar_one_or_none()
+
+    if end_user is None:
+        raise HTTPException(status_code=404, detail="user not found")
+
+    response = {"id":end_user.id, "email":end_user.email, "project_id":end_user.project_id}
+    return response

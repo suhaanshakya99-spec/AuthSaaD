@@ -3,6 +3,14 @@ from sqlalchemy import (ForeignKey, DateTime)
 from sqlalchemy.orm import (Mapped, mapped_column, relationship)
 from datetime import (datetime, timedelta)
 
+'''
+cascade
+→ SQLAlchemy ORM manages/deletes related objects
+
+passive_deletes=True
+→ SQLAlchemy says "let the database handle the delete"
+'''
+
 
 class Developers(Base):
 
@@ -43,6 +51,7 @@ class End_Users(Base):
     user_end_hashedpass:Mapped[str] = mapped_column()
     created_at:Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now)
     updated_at:Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    verified:Mapped[bool] = mapped_column(default=False, nullable=True)
 
     app:Mapped["Projects"] = relationship("Projects", back_populates="users")
 

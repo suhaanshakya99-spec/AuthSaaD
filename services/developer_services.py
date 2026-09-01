@@ -35,7 +35,6 @@ async def register_developer(data:CreateDeveloper, db:AsyncSession):
 
     verification_token = secrets.token_urlsafe(32)
     hashed_token = hash_password(verification_token)
-
     print(verification_token)
 
     token = Tokens(developer_id=new_developer.id, token_hashed=hashed_token, token_type="Verification")
