@@ -5,19 +5,21 @@ from models.postgres_models import (Developers, Projects)
 from services.project_services import (create_project, fetch_all_projects, update_project, delete_project)
 from schemas.project_schemas import (CreateProject, UpdateProject)
 from dependency.db import (get_session)
-from core.auth import (get_current_developer, api_from_header)
+from core.auth import (get_current_developer)
 from schemas.end__user_schemas import (CreateEndUser)
 
 router = APIRouter(prefix="/developers/projects", tags=["Projects"])
 
+#B2gtH2UcgE6lBELz6S79fmNYXaggCHzgZC0BpF7QTj8
 
-@router.post("/project")
+
+@router.post("/new_project")
 async def open_new_project(data:CreateProject, developer:Developers=Depends(get_current_developer), db:AsyncSession=Depends(get_session)):
     result = await create_project(data, db, developer)
     return result
 
 
-@router.get("")
+@router.get("/all")
 async def view_all_projects(developer:Developers=Depends(get_current_developer), db:AsyncSession=Depends(get_session)):
     result = await fetch_all_projects(id=developer.id, db=db)
     return result

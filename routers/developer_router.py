@@ -14,13 +14,13 @@ async def developer_registration(data:CreateDeveloper, db:AsyncSession=Depends(g
     result = await register_developer(data, db)
     return result
 
-@router.post("/login")
+@router.post("/dev_login")
 async def developers_login(data:OAuth2PasswordRequestForm=Depends(), db:AsyncSession=Depends(get_session)):
     result = await login_develepor(data, db)
     return result
 
 
-@router.post("/verify-developer")
+@router.post("/verify-developer/{token}")
 async def verifydeveloper(token:str, developer:Developers=Depends(get_current_developer), db:AsyncSession=Depends(get_session)):
     result = await verify_verification_token(token, db, developer)
     return result

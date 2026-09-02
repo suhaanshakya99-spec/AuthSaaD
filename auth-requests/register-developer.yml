@@ -1,0 +1,23 @@
+info:
+  name: register-developer
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/developers/registration"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "dev2@test.com",
+        "plain_password": "test@123"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+​

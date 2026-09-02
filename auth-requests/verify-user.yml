@@ -1,0 +1,24 @@
+info:
+  name: verify-user
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/end-user/verification?token=TYZvICUqcTrduLz2I2ZMmerJEtBnbDYSnfBf_9G5Y9g"
+  headers:
+    - name: API-key
+      value: B2gtH2UcgE6lBELz6S79fmNYXaggCHzgZC0BpF7QTj8
+  params:
+    - name: token
+      value: TYZvICUqcTrduLz2I2ZMmerJEtBnbDYSnfBf_9G5Y9g
+      type: query
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsImVtYWlsIjoic3VoYWFuc2hha3lhOTlAZ21haWwuY29tIiwiZXhwIjoxNzg4MzQ0ODA5fQ.yRHDkwUQYmHAIWCm1ogz6RzfGDP1ry-zxgKxzAwjkDc
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

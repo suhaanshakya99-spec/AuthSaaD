@@ -1,0 +1,26 @@
+info:
+  name: login-user
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/end-user/login"
+  headers:
+    - name: API-key
+      value: B2gtH2UcgE6lBELz6S79fmNYXaggCHzgZC0BpF7QTj8
+  body:
+    type: form-urlencoded
+    data:
+      - name: username
+        value: suhaanshakya99@gmail.com
+      - name: password
+        value: Suhan@123
+  auth:
+    type: bearer
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

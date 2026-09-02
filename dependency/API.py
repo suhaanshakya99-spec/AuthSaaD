@@ -8,7 +8,7 @@ from core.auth import get_developer_Byemail
 from models.postgres_models import (Developers, Projects)
 import json
 
-api_key_header = APIKeyHeader(name="API key")
+api_key_header = APIKeyHeader(name="API-key", auto_error=True)
 
 async def verify_api_key(db:AsyncSession, api_key:str=Depends(api_key_header))->dict:
 
@@ -25,6 +25,7 @@ async def verify_api_key(db:AsyncSession, api_key:str=Depends(api_key_header))->
         result = {"project_id":developer_project.id,
                     "developer_id":developer_project.developer_id,
                     "API":developer_project.api}
+        await redis_client.set(name=api_key, value=json.dumps(result), ex=300)
         return result
     
 

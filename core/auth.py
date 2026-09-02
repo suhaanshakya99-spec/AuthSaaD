@@ -47,7 +47,6 @@ def password_verify(user_entered_password, db_hashed_password):
 
 
 developer_oauth_schema = OAuth2PasswordBearer(tokenUrl="developers/login", scheme_name="Developers")
-api_from_header = APIKeyHeader(name="api-key", auto_error=True)
 enduser_oauth_schema = OAuth2PasswordBearer(tokenUrl="/end-user/login", scheme_name="End-User")
 
 def decode_token(token:str):
@@ -111,16 +110,21 @@ async def get_current_user(access_token:str=Depends(enduser_oauth_schema), db:As
     cached_data = await redis_client.get(redis_key)
     if cached_data:
         json_dumped = json.loads(cached_data)
-        return json_dumped
+        db_stmt = select(End_Users).where(End_Users.email==json_dumped["email"], End_Users.project_id==json_dumped["project_id"])
+        result = await db.execute(db_stmt)
+        end_user = result.scalar_one_or_none()
+        return end_user
 
     payload = decode_token(access_token)
     email = payload.get("email")
-    stmt = select(End_Users).where(End_Users.email==email)
+    project_id = payload.get("project_id")
+    stmt = select(End_Users).where(End_Users.email==email, End_Users.project_id==project_id)
     result = await db.execute(stmt)
     end_user = result.scalar_one_or_none()
 
     if end_user is None:
         raise HTTPException(status_code=404, detail="user not found")
 
-    response = {"id":end_user.id, "email":end_user.email, "project_id":end_user.project_id}
-    return response
+    return end_user
+
+    

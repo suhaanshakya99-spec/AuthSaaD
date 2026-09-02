@@ -1,0 +1,17 @@
+info:
+  name: show-allProjects
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/developers/projects/all"
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjEsImVtYWlsIjoiZGV2MkB0ZXN0LmNvbSIsImV4cCI6MTc4ODM0NDI1Mn0.8P2s9aC6l62-wLnzf3rkPSjkJU3HV0gjVvTrl0cf3M8
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

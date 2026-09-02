@@ -1,0 +1,22 @@
+info:
+  name: developer-loh
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/developers/dev_login"
+  body:
+    type: form-urlencoded
+    data:
+      - name: username
+        value: dev2@test.com
+      - name: password
+        value: test@123
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

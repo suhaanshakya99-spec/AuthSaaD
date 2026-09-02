@@ -1,0 +1,23 @@
+info:
+  name: create-project
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/developers/projects/new_project"
+  body:
+    type: json
+    data: |-
+      {
+        "project_name": "my-app"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjEsImVtYWlsIjoiZGV2MkB0ZXN0LmNvbSIsImV4cCI6MTc4ODM0NDI1Mn0.8P2s9aC6l62-wLnzf3rkPSjkJU3HV0gjVvTrl0cf3M8
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

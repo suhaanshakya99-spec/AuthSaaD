@@ -105,4 +105,6 @@ async def verify_verification_token(api:str, token:str, db:AsyncSession, end_use
     end_user.verified = True
     enduser.used_at = datetime.now(timezone.utc)
 
+    await db.commit()
+
     return {"message":"user has been verified"}
