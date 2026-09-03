@@ -7,7 +7,7 @@ import secrets
 from schemas.developer_schemas import (CreateDeveloper)
 from core.auth import (hash_password, create_access_token, create_refresh_token, password_verify, get_current_developer)
 from models.postgres_models import (Developers, Projects, Tokens)
-from core.redis_client import redis_client
+from core.redis_client import (redis_client, ratelimiting)
 from core.celery import (sending_verification_mail)
 import secrets
 from datetime import datetime, timezone
@@ -16,6 +16,13 @@ from datetime import datetime, timezone
 async def register_developer(data:CreateDeveloper, db:AsyncSession):
 
     hashed_password = hash_password(data.plain_password)
+
+    stmt = select(Developers).where(Developers.email==data.email)
+    result = await db.execute(stmt)
+    developer_db = result.scalar_one_or_none()
+
+    if developer_db:
+        raise HTTPException(status_code=409, detail="email already registered")
 
     new_developer = Developers(email=data.email, hash_password=hashed_password)
 
@@ -48,7 +55,10 @@ async def register_developer(data:CreateDeveloper, db:AsyncSession):
 
 
 async def login_develepor(data:OAuth2PasswordRequestForm, db:AsyncSession):
+
     developer_email = data.username
+
+    await ratelimiting(developer_email)
 
     stmt = select(Developers).where(Developers.email == developer_email)
     result = await db.execute(stmt)
@@ -56,7 +66,7 @@ async def login_develepor(data:OAuth2PasswordRequestForm, db:AsyncSession):
 
     if developer is None:
         raise HTTPException(status_code=404, detail="Developer not in db.")
-
+    
     developer_hashed_password = developer.hash_password
 
     if password_verify(data.password, developer_hashed_password):
@@ -74,7 +84,7 @@ async def login_develepor(data:OAuth2PasswordRequestForm, db:AsyncSession):
 
         return response
 
-    raise HTTPException(status_code=401, detail="Developer details invalid.")
+    raise HTTPException(status_code=401, detail="developer credential is wrong")
 
 
 
@@ -97,5 +107,21 @@ async def verify_verification_token(token:str, db:AsyncSession, developer:Develo
 
     return {"message":"Verification done"}
 
+
+async def delete_developer(developer:Developers, db:AsyncSession):
+
+    developer_id = developer.id
+
+    stmt = select(Developers).where(Developers.id==developer_id)
+    result = await db.execute(stmt)
+    db_developer = result.scalar_one_or_none()
+
+    if db_developer is None:
+        raise HTTPException(status_code=404, detail="developer not found in db")
+
+    await db.delete(db_developer)
+    await db.commit()
+
+    return {"message":"developer deleted from db."}
 
 

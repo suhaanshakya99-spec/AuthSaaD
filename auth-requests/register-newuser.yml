@@ -8,16 +8,18 @@ http:
   url: "{{baseUrl}}/end-user/new-user"
   headers:
     - name: API-key
-      value: B2gtH2UcgE6lBELz6S79fmNYXaggCHzgZC0BpF7QTj8
+      value: qOzvjJQb7Ec73pC-Xm8LxtQKuN_E7wM0e4CjVfbDxtE
   body:
     type: json
     data: |2-
          { 
-           "email":"user1@test.com",
+           "email":"user56@test.com",
            "name":"WindChanter",
            "plain_password":"user1"
          }
-  auth: inherit
+  auth:
+    type: bearer
+    token: qOzvjJQb7Ec73pC-Xm8LxtQKuN_E7wM0e4CjVfbDxtE
 
 settings:
   encodeUrl: true

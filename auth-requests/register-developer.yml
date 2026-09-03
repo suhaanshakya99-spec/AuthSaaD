@@ -10,8 +10,8 @@ http:
     type: json
     data: |-
       {
-        "email": "dev2@test.com",
-        "plain_password": "test@123"
+        "email": "dev3@test.com",
+        "plain_password": "dev@123"
       }
   auth: inherit
 
@@ -20,4 +20,3 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
-​

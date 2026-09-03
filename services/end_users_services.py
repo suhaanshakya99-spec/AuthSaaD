@@ -13,12 +13,20 @@ from core.celery import (sending_verification_mail, send_user_verificationmail)
 from services.project_services import (fetch_all_projects)
 from dependency.API import verify_api_key
 from datetime import (datetime, timedelta, timezone)
+from services.project_services import (fetch_all_users_from_project)
 
 
 #Create a user for project by developer using our shi
 async def create_user(api_key:str, db:AsyncSession, data:CreateEndUser)->dict:
 
     project = await verify_api_key(db, api_key)
+
+    stmt = select(End_Users).where(End_Users.email==data.email, End_Users.project_id==project["project_id"])
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+
+    if user:
+        raise HTTPException(status_code=409, detail="email already registered")
 
     plain_password = data.plain_password
     hashed_password = hash_password(plain_password)
@@ -45,9 +53,12 @@ async def create_user(api_key:str, db:AsyncSession, data:CreateEndUser)->dict:
 
     response =  {"access_token":access_token, "refresh_token":refresh_token, "token_type":"bearer"}
 
+    await redis_client.delete(f"project-id{end_user.project_id}")
+
     redis_name = f"end_user_access_token:{access_token}"
     redis_dict = {"id":end_user.id, "email":end_user.email, "project_id":end_user.project_id}
     json_encoded_redis = json.dumps(redis_dict)
+
     await redis_client.set(name=redis_name, value=json_encoded_redis, ex=300)
 
     return response
@@ -84,6 +95,8 @@ async def login(api_key:str, data:OAuth2PasswordRequestForm, db:AsyncSession):
 
         return response
 
+    raise HTTPException(status_code=401, detail="user credential is wrong")
+
 
 async def verify_verification_token(api:str, token:str, db:AsyncSession, end_user:End_Users):
 
@@ -108,3 +121,27 @@ async def verify_verification_token(api:str, token:str, db:AsyncSession, end_use
     await db.commit()
 
     return {"message":"user has been verified"}
+
+
+
+async def delete_user(api:str, end_user:End_Users, db:AsyncSession):
+
+    await verify_api_key(db, api)
+
+    stmt = select(End_Users).where(End_Users.id==end_user.id)
+    result = await db.execute(stmt)
+    db_user = result.scalar_one_or_none()
+
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="user not in db")
+
+
+    redis_result = await redis_client.get(name=f"project-id{db_user.project_id}")
+
+    if redis_result:
+        await redis_client.delete(f"project-id{db_user.project_id}")
+
+    await db.delete(db_user)
+    await db.commit()
+
+    return {"message":"user deleted from db"}

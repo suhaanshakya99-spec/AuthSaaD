@@ -1,18 +1,18 @@
 info:
-  name: developer-loh
+  name: developer-login
   type: http
   seq: 1
 
 http:
   method: POST
-  url: "{{baseUrl}}/developers/dev_login"
+  url: "{{baseUrl}}/developers/dev-login"
   body:
     type: form-urlencoded
     data:
       - name: username
-        value: dev2@test.com
+        value: suhaanshakya99@gmail.com
       - name: password
-        value: test@123
+        value: Suhan@123
   auth: inherit
 
 settings:

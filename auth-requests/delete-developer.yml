@@ -1,0 +1,20 @@
+info:
+  name: delete-developer
+  type: http
+  seq: 1
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/developers/delete"
+  body:
+    type: json
+    data: ""
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjIsImVtYWlsIjoiZGV2M0B0ZXN0LmNvbSIsImV4cCI6MTc4ODM5MTExOH0.YwkbmCJX4aTl-v9-s6Jb7ehDPeVdxsx5yIKVtsba0Eg
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

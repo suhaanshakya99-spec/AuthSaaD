@@ -8,11 +8,11 @@ from dependency.db import (get_session)
 from core.auth import (get_current_developer, get_current_user)
 from dependency.API import (api_key_header)
 from schemas.end__user_schemas import (CreateEndUser)
-from services.end_users_services import (create_user, login, verify_verification_token)
+from services.end_users_services import (create_user, login, verify_verification_token, delete_user)
 
 router = APIRouter(prefix="/end-user", tags=["End-User"])
 
-#AP0MptQV0l9YH17xmM_sZQw1U7K9BXscrHQmPlrnrD4
+#ap3R5ilhjTRhYRFEH4w1YcItlIvFBrwtzOX2AZU9DuU
 
 @router.post("/new-user")
 async def register_new_user(data:CreateEndUser, api_key:str=Depends(api_key_header), db:AsyncSession=Depends(get_session)):
@@ -29,4 +29,9 @@ async def login_end_user(data=Depends(OAuth2PasswordRequestForm), db:AsyncSessio
 @router.post("/verification")
 async def verification_of_user(token:str, db:AsyncSession= Depends(get_session), api:str=Depends(api_key_header), end_user:End_Users=Depends(get_current_user)):
     result = await verify_verification_token(api, token, db, end_user)
+    return result
+
+@router.delete("/delete")
+async def destroy_user(api:str=Depends(api_key_header), end_user:End_Users=Depends(get_current_user), db:AsyncSession=Depends(get_session)):
+    result = await delete_user(api, end_user, db)
     return result

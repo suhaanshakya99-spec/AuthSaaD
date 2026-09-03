@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Auth SaaS - Basic Test Site</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>Auth SaaS Test Site</h1>
+
+  <label for="baseUrl">API Base URL</label>
+  <input type="text" id="baseUrl" value="http://127.0.0.1:8000">
+
+  <hr>
+
+  <!-- 1. Register developer -->
+  <h2>1. Register Developer</h2>
+  <label>Email</label>
+  <input type="text" id="devRegEmail" value="dev1@example.com">
+  <label>Password</label>
+  <input type="password" id="devRegPass" value="Passw0rd!">
+  <button onclick="devRegister()">Register</button>
+  <pre id="devRegOut"></pre>
+
+  <hr>
+
+  <!-- 2. Developer login -->
+  <h2>2. Developer Login</h2>
+  <label>Email</label>
+  <input type="text" id="devLoginEmail" value="dev1@example.com">
+  <label>Password</label>
+  <input type="password" id="devLoginPass" value="Passw0rd!">
+  <button onclick="devLogin()">Login</button>
+  <pre id="devLoginOut"></pre>
+  <p>Current developer token: <span id="devTokenShown">none</span></p>
+
+  <hr>
+
+  <!-- 3. Create project -->
+  <h2>3. Create Project (get API key)</h2>
+  <label>Project Name</label>
+  <input type="text" id="projName" value="My Cool App">
+  <button onclick="createProject()">Create Project</button>
+  <pre id="projOut"></pre>
+  <p>Current API key: <span id="apiKeyShown">none</span></p>
+
+  <hr>
+
+  <!-- 4. List project users -->
+  <h2>4. List Users In Project</h2>
+  <label>Project ID</label>
+  <input type="text" id="listProjectId" value="1">
+  <button onclick="listUsers()">Fetch Users</button>
+  <pre id="listOut"></pre>
+
+  <hr>
+
+  <!-- 5. Register end-user -->
+  <h2>5. Register End-User</h2>
+  <label>API Key</label>
+  <input type="text" id="euApiKey">
+  <label>Name</label>
+  <input type="text" id="euRegName" value="Alice">
+  <label>Email</label>
+  <input type="text" id="euRegEmail" value="alice@example.com">
+  <label>Password</label>
+  <input type="password" id="euRegPass" value="AlicePass1!">
+  <button onclick="euRegister()">Register End-User</button>
+  <pre id="euRegOut"></pre>
+
+  <hr>
+
+  <!-- 6. End-user login -->
+  <h2>6. End-User Login</h2>
+  <label>API Key</label>
+  <input type="text" id="euLoginApiKey">
+  <label>Email</label>
+  <input type="text" id="euLoginEmail" value="alice@example.com">
+  <label>Password</label>
+  <input type="password" id="euLoginPass" value="AlicePass1!">
+  <button onclick="euLogin()">Login End-User</button>
+  <pre id="euLoginOut"></pre>
+
+  <hr>
+
+  <!-- 7. Raw request -->
+  <h2>7. Raw Request (anything else)</h2>
+  <label>Method</label>
+  <input type="text" id="rawMethod" value="GET">
+  <label>Path (e.g. /developers/projects/all)</label>
+  <input type="text" id="rawPath" value="/">
+  <label>API-key header (optional)</label>
+  <input type="text" id="rawApiKey">
+  <label>Bearer token (optional)</label>
+  <input type="text" id="rawBearer">
+  <label>JSON body (optional)</label>
+  <input type="text" id="rawBody" placeholder='{"key":"value"}'>
+  <button onclick="rawRequest()">Send</button>
+  <pre id="rawOut"></pre>
+
+  <script src="script.js"></script>
+</body>
+</html>

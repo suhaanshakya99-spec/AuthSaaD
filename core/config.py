@@ -16,6 +16,9 @@ class Settings(BaseSettings):
 
     BREVO_API:str
 
+    TIMEFRAME:int
+    LIMIT:int
+
 
     model_config = SettingsConfigDict(env_file=".env")
 

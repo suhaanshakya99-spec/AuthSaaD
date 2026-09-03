@@ -7,6 +7,7 @@ from routers.developer_router import router as developer_router
 from routers.project_router import router as project_router
 from routers.end_user_router import router as end_user_router
 from core.redis_client import redis_client
+from fastapi.middleware.cors import CORSMiddleware 
 
 
 async def create_all_tables():
@@ -35,6 +36,11 @@ async def lifecycle(app:FastAPI):
 
 
 app = FastAPI(title="Auth System", lifespan=lifecycle)
+app.add_middleware(CORSMiddleware, 
+                   allow_credentials=True,
+                   allow_origins=["*"],
+                   allow_headers=["*"],
+                   allow_methods=["*"])
 app.include_router(developer_router)
 app.include_router(project_router)
 app.include_router(end_user_router)

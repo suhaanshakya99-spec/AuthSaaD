@@ -1,0 +1,21 @@
+info:
+  name: get-all-users
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/developers/projects/users?project_id=10"
+  params:
+    - name: project_id
+      value: "10"
+      type: query
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjMsImVtYWlsIjoiZGV2MUBleGFtcGxlLmNvbSIsImV4cCI6MTc4ODQzMTcxNH0.QYqOh8dOfJHfIU2A7qDqKWmAsTIyrIRRIZPIx27VR3g
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

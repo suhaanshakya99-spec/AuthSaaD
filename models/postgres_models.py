@@ -1,5 +1,5 @@
 from db.database import Base
-from sqlalchemy import (ForeignKey, DateTime)
+from sqlalchemy import (ForeignKey, DateTime, UniqueConstraint)
 from sqlalchemy.orm import (Mapped, mapped_column, relationship)
 from datetime import (datetime, timedelta)
 
@@ -46,7 +46,7 @@ class End_Users(Base):
 
     id:Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
     project_id:Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
-    email:Mapped[str] = mapped_column(index=True, unique=True)
+    email:Mapped[str] = mapped_column(index=True)
     name:Mapped[str] = mapped_column()
     user_end_hashedpass:Mapped[str] = mapped_column()
     created_at:Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now)
@@ -55,6 +55,7 @@ class End_Users(Base):
 
     app:Mapped["Projects"] = relationship("Projects", back_populates="users")
 
+    __table_args__ = (UniqueConstraint("project_id", "email", name="project_user_unique"),)
 
 class Tokens(Base):
 

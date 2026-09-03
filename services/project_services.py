@@ -79,3 +79,33 @@ async def delete_project(project_id:int, db:AsyncSession, developer_id:int):
     await db.commit()
 
     return {"message":"Project delete successfully"}
+
+
+async def fetch_all_users_from_project(project_id:int, db:AsyncSession):
+
+    redis_cache = await redis_client.get(name=f"project-id{project_id}")
+
+    if redis_cache:
+        user_data = json.loads(redis_cache)
+        if len(user_data) >= 1:
+            return user_data
+
+    stmt = select(End_Users).where(End_Users.project_id==project_id)
+    result = await db.execute(stmt)
+    users = result.scalars().all()
+
+    user_data = []
+
+    for user in users:
+
+        data = {
+            "user-id":user.id,
+            "user-email":user.email,
+            "username":user.name
+        }
+
+        user_data.append(data)
+
+    await redis_client.set(name=f"project-id{project_id}", value=json.dumps(user_data), ex=300)
+
+    return user_data

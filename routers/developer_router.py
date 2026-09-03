@@ -2,7 +2,7 @@ from fastapi import (APIRouter, Depends)
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import (OAuth2PasswordRequestForm)
 from models.postgres_models import (Developers, Projects)
-from services.developer_services import (register_developer, login_develepor, verify_verification_token)
+from services.developer_services import (register_developer, login_develepor, verify_verification_token, delete_developer)
 from schemas.developer_schemas import (CreateDeveloper)
 from dependency.db import (get_session)
 from core.auth import (get_current_developer, verify_refresh_token)
@@ -14,13 +14,13 @@ async def developer_registration(data:CreateDeveloper, db:AsyncSession=Depends(g
     result = await register_developer(data, db)
     return result
 
-@router.post("/dev_login")
+@router.post("/dev-login")
 async def developers_login(data:OAuth2PasswordRequestForm=Depends(), db:AsyncSession=Depends(get_session)):
     result = await login_develepor(data, db)
     return result
 
 
-@router.post("/verify-developer/{token}")
+@router.post("/verify-developer")
 async def verifydeveloper(token:str, developer:Developers=Depends(get_current_developer), db:AsyncSession=Depends(get_session)):
     result = await verify_verification_token(token, db, developer)
     return result
@@ -30,4 +30,10 @@ async def verifydeveloper(token:str, developer:Developers=Depends(get_current_de
 async def validate_refresh_token(token:str, db:AsyncSession=Depends(get_session)):
     result = await verify_refresh_token(token, db)
     return result
+
+@router.delete("/delete")
+async def destroy_developer(developer:Developers=Depends(get_current_developer), db:AsyncSession=Depends(get_session)):
+    result = await delete_developer(developer, db)
+    return result
+
 

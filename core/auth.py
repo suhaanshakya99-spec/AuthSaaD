@@ -50,8 +50,13 @@ developer_oauth_schema = OAuth2PasswordBearer(tokenUrl="developers/login", schem
 enduser_oauth_schema = OAuth2PasswordBearer(tokenUrl="/end-user/login", scheme_name="End-User")
 
 def decode_token(token:str):
-    decoded_token = jwt.decode(token, algorithms=[settings.ALGORITHM], key=settings.KEY)
-    return decoded_token
+    try:
+        decoded_token = jwt.decode(token, algorithms=[settings.ALGORITHM], key=settings.KEY)
+        return decoded_token
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="token has expired")
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="invalid token")
 
 async def get_developer_Byemail(email:str, db:AsyncSession):
     stmt = select(Developers).where(Developers.email == email)
