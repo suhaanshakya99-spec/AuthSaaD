@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keyforge — Auth API Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #191825;
+    --bg-alt: #14131d;
+    --surface: #232131;
+    --surface-2: #2b2840;
+    --border: #3a3650;
+    --text: #f1eefb;
+    --text-dim: #a9a3c2;
+    --text-faint: #726d8c;
+    --brass: #e4b363;
+    --brass-dim: #a9843f;
+    --teal: #6fbf9e;
+    --blue: #7fa8d9;
+    --red: #e2725b;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --serif: 'Newsreader', serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; overflow-x:hidden; width:100%; }
+  body{ overflow-x:hidden; width:100%; max-width:100vw; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); line-height:1.6; font-size:15px;
+  }
+  ::selection{ background:var(--brass); color:#1a1625; }
+  a{ color:var(--brass); text-decoration:none; }
+  a:hover{ text-decoration:underline; }
+  code, .mono{ font-family:var(--mono); }
+  h1,h2,h3{ font-family:var(--serif); font-weight:500; letter-spacing:-0.01em; color:var(--text); }
+
+  /* ---- Hero ---- */
+  .hero{
+    padding:72px 32px 56px; background:var(--bg-alt);
+    border-bottom:1px solid var(--border);
+  }
+  .hero-inner{ max-width:1100px; margin:0 auto; display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,0.9fr); gap:56px; align-items:center; width:100%; }
+  .kicker{ font-family:var(--mono); font-size:12.5px; color:var(--brass); margin:0 0 14px; }
+  .hero h1{ font-size:44px; line-height:1.12; margin:0 0 18px; }
+  .hero h1 em{ font-style:italic; color:var(--brass); }
+  .hero p{ color:var(--text-dim); font-size:16px; max-width:46ch; margin:0 0 26px; }
+  .hero-actions{ display:flex; gap:14px; }
+  .btn{
+    display:inline-block; padding:11px 20px; border-radius:3px; font-size:14px;
+    font-weight:500; border:1px solid transparent; cursor:pointer; font-family:var(--sans);
+  }
+  .btn-primary{ background:var(--brass); color:#1a1625; }
+  .btn-primary:hover{ background:#eec27a; text-decoration:none; }
+  .btn-ghost{ background:transparent; border-color:var(--border); color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--text-dim); text-decoration:none; }
+
+  .codecard{
+    background:var(--surface); border:1px solid var(--border); border-radius:6px;
+    overflow:hidden; box-shadow:0 20px 40px -20px rgba(0,0,0,.5);
+  }
+  .codecard-head{
+    display:flex; gap:7px; padding:11px 14px; border-bottom:1px solid var(--border); background:var(--surface-2);
+  }
+  .dot{ width:9px; height:9px; border-radius:50%; background:var(--border); }
+  .codecard pre{ margin:0; padding:18px 16px; font-size:13px; overflow-x:auto; max-width:100%; color:var(--text-dim); }
+  .codecard .tok-kw{ color:var(--blue); }
+  .codecard .tok-str{ color:var(--teal); }
+  .codecard .tok-com{ color:var(--text-faint); }
+  .codecard .tok-fn{ color:var(--brass); }
+
+  /* ---- Layout ---- */
+  .layout{ max-width:1100px; margin:0 auto; display:grid; grid-template-columns:220px minmax(0,1fr); gap:56px; padding:48px 32px 100px; align-items:start; width:100%; }
+  .sidebar{ position:sticky; top:32px; }
+  .sidebar h4{ font-family:var(--mono); font-size:11px; text-transform:none; color:var(--text-faint); margin:0 0 8px; }
+  .sidebar nav{ display:flex; flex-direction:column; margin-bottom:26px; }
+  .sidebar nav a{ color:var(--text-dim); font-size:13.5px; padding:5px 0; }
+  .sidebar nav a:hover{ color:var(--text); text-decoration:none; }
+
+  main section{ margin-bottom:68px; scroll-margin-top:24px; }
+  main h2{ font-size:26px; margin:0 0 8px; }
+  main .lede{ color:var(--text-dim); max-width:62ch; margin:0 0 28px; }
+
+  .step{ display:grid; grid-template-columns:34px 1fr; gap:16px; margin-bottom:28px; }
+  .step-num{
+    width:34px; height:34px; border-radius:50%; border:1px solid var(--brass-dim);
+    color:var(--brass); font-family:var(--mono); font-size:13px; display:flex;
+    align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .step h3{ font-size:16px; margin:4px 0 6px; font-family:var(--sans); font-weight:600; }
+  .step p{ color:var(--text-dim); margin:0 0 10px; font-size:14px; }
+
+  pre.block{
+    background:var(--surface); border:1px solid var(--border); border-radius:5px;
+    padding:14px 16px; font-size:13px; overflow-x:auto; max-width:100%; color:var(--text-dim); margin:0 0 6px;
+  }
+  pre.block .tok-kw{ color:var(--blue); }
+  pre.block .tok-str{ color:var(--teal); }
+  pre.block .tok-com{ color:var(--text-faint); }
+  pre.block .tok-fn{ color:var(--brass); }
+  pre.block .tok-num{ color:var(--red); }
+
+  table.kv{ width:100%; border-collapse:collapse; font-size:13.5px; margin:14px 0 22px; }
+  table.kv th, table.kv td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); }
+  table.kv th{ color:var(--text-faint); font-weight:500; font-family:var(--mono); font-size:11.5px; }
+  table.kv td.mono{ color:var(--brass); }
+
+  .badge{
+    font-family:var(--mono); font-size:11px; font-weight:600; padding:3px 7px;
+    border-radius:3px; display:inline-block; letter-spacing:0.02em;
+  }
+  .badge-post{ background:rgba(228,179,99,.15); color:var(--brass); }
+  .badge-get{ background:rgba(111,191,158,.15); color:var(--teal); }
+  .badge-put{ background:rgba(127,168,217,.15); color:var(--blue); }
+  .badge-delete{ background:rgba(226,114,91,.15); color:var(--red); }
+
+  .endpoint{
+    border:1px solid var(--border); border-radius:6px; margin-bottom:18px; overflow:hidden; background:var(--bg-alt);
+  }
+  .endpoint-head{
+    display:flex; align-items:center; gap:10px; padding:13px 16px; background:var(--surface); cursor:pointer;
+    border-bottom:1px solid transparent;
+  }
+  .endpoint-head:hover{ background:var(--surface-2); }
+  .endpoint-head .path{ font-family:var(--mono); font-size:13.5px; color:var(--text); }
+  .endpoint-head .desc{ margin-left:auto; color:var(--text-faint); font-size:12.5px; }
+  .endpoint-body{ padding:16px; display:none; }
+  .endpoint.open .endpoint-body{ display:block; }
+  .endpoint.open .endpoint-head{ border-bottom-color:var(--border); }
+  .endpoint-body h5{ font-family:var(--mono); font-size:11px; color:var(--text-faint); margin:16px 0 6px; text-transform:none; }
+  .endpoint-body h5:first-child{ margin-top:0; }
+
+  .auth-tag{
+    display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px;
+    color:var(--text-dim); border:1px solid var(--border); padding:3px 8px; border-radius:3px; margin-right:6px;
+  }
+
+  .callout{
+    border-left:3px solid var(--brass); background:rgba(228,179,99,.06); padding:14px 16px;
+    border-radius:0 5px 5px 0; font-size:13.5px; color:var(--text-dim); margin:16px 0;
+  }
+  .callout strong{ color:var(--text); }
+  .callout.warn{ border-left-color:var(--red); background:rgba(226,114,91,.07); }
+
+  /* ---- Console ---- */
+  .console{
+    border:1px solid var(--border); border-radius:6px; background:var(--surface); padding:20px;
+  }
+  .console-row{ display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .console-row input, .console select{
+    background:var(--bg-alt); border:1px solid var(--border); color:var(--text); padding:9px 11px;
+    border-radius:4px; font-family:var(--mono); font-size:13px; flex:1; min-width:160px;
+  }
+  .console-row input:focus, .console select:focus{ outline:1px solid var(--brass); border-color:var(--brass); }
+  .console-tabs{ display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .ctab{
+    font-family:var(--mono); font-size:12.5px; padding:7px 12px; border-radius:4px; border:1px solid var(--border);
+    background:transparent; color:var(--text-dim); cursor:pointer;
+  }
+  .ctab.active{ background:var(--brass); color:#1a1625; border-color:var(--brass); }
+  .cpanel{ display:none; }
+  .cpanel.active{ display:block; }
+  .cpanel .field{ margin-bottom:10px; }
+  .cpanel label{ display:block; font-family:var(--mono); font-size:11.5px; color:var(--text-faint); margin-bottom:5px; }
+  .cpanel input{
+    width:100%; background:var(--bg-alt); border:1px solid var(--border); color:var(--text);
+    padding:9px 11px; border-radius:4px; font-family:var(--mono); font-size:13px;
+  }
+  .run-btn{
+    background:var(--brass); color:#1a1625; border:none; padding:10px 18px; border-radius:4px;
+    font-family:var(--sans); font-weight:600; font-size:13.5px; cursor:pointer; margin-top:4px;
+  }
+  .run-btn:hover{ background:#eec27a; }
+  .out{
+    margin-top:16px; background:var(--bg-alt); border:1px solid var(--border); border-radius:4px;
+    padding:12px 14px; font-family:var(--mono); font-size:12.5px; white-space:pre-wrap; word-break:break-word;
+    max-height:260px; overflow-y:auto; color:var(--text-dim);
+  }
+  .out .ok{ color:var(--teal); }
+  .out .err{ color:var(--red); }
+  .state-strip{
+    display:flex; gap:18px; flex-wrap:wrap; margin-top:16px; padding-top:14px; border-top:1px solid var(--border);
+    font-family:var(--mono); font-size:11.5px; color:var(--text-faint);
+  }
+  .state-strip span b{ color:var(--text-dim); display:block; font-size:11px; margin-bottom:3px; font-weight:500;}
+  .state-strip code{ color:var(--brass); word-break:break-all; }
+
+  footer{ border-top:1px solid var(--border); padding:28px 32px; text-align:center; color:var(--text-faint); font-size:12.5px; }
+
+  @media (max-width: 860px){
+    .hero{ padding:48px 20px 36px; }
+    .hero-inner{ grid-template-columns:1fr; gap:28px; }
+    .hero h1{ font-size:34px; }
+    .layout{ grid-template-columns:1fr; padding:32px 20px 72px; gap:24px; }
+    .sidebar{ position:static; }
+  }
+  @media (max-width: 640px){
+    .hero h1{ font-size:28px; }
+    .hero p{ font-size:14px; }
+    .codecard pre, pre.block{ font-size:12px; }
+    .endpoint-head{ flex-wrap:wrap; }
+    .endpoint-head .desc{ margin-left:0; width:100%; }
+    table.kv{ display:block; overflow-x:auto; max-width:100%; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <p class="kicker">// AUTH-AS-A-SERVICE · REST API</p>
+      <h1>Stop building<br>login pages. <em>Call one.</em></h1>
+      <p>Keyforge issues verification and access tokens for your app's developers and their end users, so you plug in an API key instead of writing another password table.</p>
+      <div class="hero-actions">
+        <a href="#quickstart" class="btn btn-primary">Read the quickstart</a>
+        <a href="#console" class="btn btn-ghost">Try it live</a>
+      </div>
+    </div>
+    <div class="codecard">
+      <div class="codecard-head"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      <pre><span class="tok-com">// register an end user, done.</span>
+<span class="tok-kw">const</span> auth = <span class="tok-kw">new</span> <span class="tok-fn">Keyforge</span>(<span class="tok-str">"https://api.yourapp.com"</span>, apiKey);
+
+<span class="tok-kw">await</span> auth.<span class="tok-fn">registerUser</span>({
+  email: <span class="tok-str">"jane@example.com"</span>,
+  name: <span class="tok-str">"Jane"</span>,
+  plain_password: <span class="tok-str">"correct-horse"</span>
+});
+
+<span class="tok-com">// tokens are now stored + auto-attached</span>
+<span class="tok-kw">const</span> me = <span class="tok-kw">await</span> auth.<span class="tok-fn">request</span>(<span class="tok-str">"/end-user/verification?token=..."</span>);</pre>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h4>ON THIS PAGE</h4>
+    <nav>
+      <a href="#quickstart">Quickstart</a>
+      <a href="#concepts">Keys &amp; tokens</a>
+      <a href="#sdk">The JS client</a>
+      <a href="#console">Try it live</a>
+      <a href="#developer-api">Developer account</a>
+      <a href="#project-api">Projects</a>
+      <a href="#enduser-api">End users</a>
+      
+    </nav>
+    <h4>BASE URL</h4>
+    <p style="font-family:var(--mono); font-size:12.5px; color:var(--text-dim); margin:0;">Set once in the console below — every example on this page reuses it.</p>
+  </aside>
+
+  <main>
+
+    <section id="quickstart">
+      <h2>Quickstart</h2>
+      <p class="lede">Four calls take you from nothing to a verified end user with a working session. Everything here is plain REST — <code>fetch</code>, curl, or whatever your stack already uses.</p>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Create your developer account</h3>
+          <p>This identifies you, not your end users. You'll use its access token to manage projects.</p>
+          <pre class="block"><span class="tok-fn">POST</span> /developers/registration
+{ <span class="tok-str">"email"</span>: <span class="tok-str">"you@company.com"</span>, <span class="tok-str">"plain_password"</span>: <span class="tok-str">"..."</span> }
+<span class="tok-com">→ { access_token, refresh_token, token_type }</span></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Create a project</h3>
+          <p>A project is one app of yours. It gets its own API key — that key is what your end users authenticate against.</p>
+          <pre class="block"><span class="tok-fn">POST</span> /developers/projects/new_project
+Authorization: Bearer &lt;your access_token&gt;
+{ <span class="tok-str">"project_name"</span>: <span class="tok-str">"my-saas"</span> }
+<span class="tok-com">→ { id, api, project_name, ... }   // "api" is the project's API key</span></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Register an end user</h3>
+          <p>Send the project's API key on every end-user call, in the <code>API-key</code> header.</p>
+          <pre class="block"><span class="tok-fn">POST</span> /end-user/new-user
+API-key: &lt;project api key&gt;
+{ <span class="tok-str">"email"</span>: <span class="tok-str">"jane@example.com"</span>, <span class="tok-str">"name"</span>: <span class="tok-str">"Jane"</span>, <span class="tok-str">"plain_password"</span>: <span class="tok-str">"..."</span> }
+<span class="tok-com">→ { access_token, refresh_token, token_type }</span></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <h3>Call anything else as that user</h3>
+          <p>Attach the end user's access token as a Bearer header, alongside the same API key.</p>
+          <pre class="block"><span class="tok-fn">POST</span> /end-user/verification?token=&lt;from your inbox&gt;
+API-key: &lt;project api key&gt;
+Authorization: Bearer &lt;end user access_token&gt;</pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="concepts">
+      <h2>Keys &amp; tokens</h2>
+      <p class="lede">Three different credentials show up across this API. Mixing them up is the most common integration bug.</p>
+      <table class="kv">
+        <tr><th>Credential</th><th>Identifies</th><th>Sent as</th><th>Lifetime</th></tr>
+        <tr><td class="mono">API key</td><td>a project</td><td><code>API-key</code> header</td><td>until you rotate it</td></tr>
+        <tr><td class="mono">access_token</td><td>a signed-in developer or end user</td><td><code>Authorization: Bearer</code></td><td>short — re-issue via refresh</td></tr>
+        <tr><td class="mono">refresh_token</td><td>the same session, longer-lived</td><td>request body / query</td><td>longer — used to mint new access tokens</td></tr>
+      </table>
+      <div class="callout">
+        <strong>Developer calls</strong> never take an <code>API-key</code> header — your own login gives you a Bearer token directly. <strong>End-user calls</strong> always need both: the project's <code>API-key</code> to say which app, and the user's Bearer token to say which person.
+      </div>
+    </section>
+
+    <section id="sdk">
+      <h2>The JS client</h2>
+      <p class="lede">A small wrapper that stores both tokens, attaches the right headers automatically, and re-issues an access token the moment one expires — so the rest of your app just calls <code>auth.request(path)</code>.</p>
+      <pre class="block"><span class="tok-kw">class</span> <span class="tok-fn">Keyforge</span> {
+  <span class="tok-fn">constructor</span>(baseUrl, apiKey <span class="tok-kw">=</span> <span class="tok-kw">null</span>) {
+    <span class="tok-kw">this</span>.base <span class="tok-kw">=</span> baseUrl.replace(<span class="tok-str">/\/$/</span>, <span class="tok-str">""</span>);
+    <span class="tok-kw">this</span>.apiKey <span class="tok-kw">=</span> apiKey;
+    <span class="tok-kw">this</span>.access <span class="tok-kw">=</span> localStorage.getItem(<span class="tok-str">"kf_access"</span>);
+    <span class="tok-kw">this</span>.refresh <span class="tok-kw">=</span> localStorage.getItem(<span class="tok-str">"kf_refresh"</span>);
+  }
+
+  <span class="tok-com">// low-level call: attaches API key + bearer token, retries once after refresh</span>
+  <span class="tok-kw">async</span> <span class="tok-fn">request</span>(path, { method <span class="tok-kw">=</span> <span class="tok-str">"GET"</span>, body, form, headers <span class="tok-kw">=</span> {} } <span class="tok-kw">=</span> {}, _retried <span class="tok-kw">=</span> <span class="tok-kw">false</span>) {
+    <span class="tok-kw">const</span> h <span class="tok-kw">=</span> { ...headers };
+    <span class="tok-kw">if</span> (<span class="tok-kw">this</span>.apiKey) h[<span class="tok-str">"API-key"</span>] <span class="tok-kw">=</span> <span class="tok-kw">this</span>.apiKey;
+    <span class="tok-kw">if</span> (<span class="tok-kw">this</span>.access) h[<span class="tok-str">"Authorization"</span>] <span class="tok-kw">=</span> <span class="tok-str">`Bearer </span>${<span class="tok-kw">this</span>.access}<span class="tok-str">`</span>;
+
+    <span class="tok-kw">let</span> fetchBody <span class="tok-kw">=</span> <span class="tok-kw">undefined</span>;
+    <span class="tok-kw">if</span> (form) { h[<span class="tok-str">"Content-Type"</span>] <span class="tok-kw">=</span> <span class="tok-str">"application/x-www-form-urlencoded"</span>; fetchBody <span class="tok-kw">=</span> <span class="tok-kw">new</span> URLSearchParams(form); }
+    <span class="tok-kw">else if</span> (body) { h[<span class="tok-str">"Content-Type"</span>] <span class="tok-kw">=</span> <span class="tok-str">"application/json"</span>; fetchBody <span class="tok-kw">=</span> JSON.stringify(body); }
+
+    <span class="tok-kw">const</span> res <span class="tok-kw">=</span> <span class="tok-kw">await</span> fetch(<span class="tok-kw">this</span>.base <span class="tok-kw">+</span> path, { method, headers: h, body: fetchBody });
+
+    <span class="tok-com">// access token expired — refresh once, then retry the original call</span>
+    <span class="tok-kw">if</span> (res.status <span class="tok-kw">===</span> <span class="tok-num">401</span> <span class="tok-kw">&&</span> <span class="tok-kw">this</span>.refresh <span class="tok-kw">&&</span> <span class="tok-kw">!</span>_retried) {
+      <span class="tok-kw">const</span> refreshed <span class="tok-kw">=</span> <span class="tok-kw">await</span> <span class="tok-kw">this</span>.<span class="tok-fn">refreshAccessToken</span>();
+      <span class="tok-kw">if</span> (refreshed) <span class="tok-kw">return</span> <span class="tok-kw">this</span>.<span class="tok-fn">request</span>(path, { method, body, form, headers }, <span class="tok-kw">true</span>);
+    }
+    <span class="tok-kw">return</span> res;
+  }
+
+  <span class="tok-fn">setTokens</span>({ access_token, refresh_token }) {
+    <span class="tok-kw">this</span>.access <span class="tok-kw">=</span> access_token; <span class="tok-kw">this</span>.refresh <span class="tok-kw">=</span> refresh_token;
+    localStorage.setItem(<span class="tok-str">"kf_access"</span>, access_token);
+    localStorage.setItem(<span class="tok-str">"kf_refresh"</span>, refresh_token);
+  }
+
+  <span class="tok-com">// developers refresh via a bare ?token=, end users need the project's api_key too</span>
+  <span class="tok-kw">async</span> <span class="tok-fn">refreshAccessToken</span>() {
+    <span class="tok-kw">const</span> url <span class="tok-kw">=</span> <span class="tok-kw">this</span>.apiKey
+      <span class="tok-kw">?</span> <span class="tok-str">`</span>${<span class="tok-kw">this</span>.base}<span class="tok-str">/end-user/refresh-token?api_key=</span>${<span class="tok-fn">encodeURIComponent</span>(<span class="tok-kw">this</span>.apiKey)}<span class="tok-str">&refresh_token=</span>${<span class="tok-fn">encodeURIComponent</span>(<span class="tok-kw">this</span>.refresh)}<span class="tok-str">`</span>
+      <span class="tok-kw">:</span> <span class="tok-str">`</span>${<span class="tok-kw">this</span>.base}<span class="tok-str">/developers/verfiy-refresh_token?token=</span>${<span class="tok-fn">encodeURIComponent</span>(<span class="tok-kw">this</span>.refresh)}<span class="tok-str">`</span>;
+    <span class="tok-kw">const</span> res <span class="tok-kw">=</span> <span class="tok-kw">await</span> fetch(url, { method: <span class="tok-str">"POST"</span> });
+    <span class="tok-kw">if</span> (<span class="tok-kw">!</span>res.ok) <span class="tok-kw">return</span> <span class="tok-kw">false</span>;
+    <span class="tok-kw">this</span>.access <span class="tok-kw">=</span> <span class="tok-kw">await</span> res.json();
+    localStorage.setItem(<span class="tok-str">"kf_access"</span>, <span class="tok-kw">this</span>.access);
+    <span class="tok-kw">return</span> <span class="tok-kw">true</span>;
+  }
+
+  <span class="tok-fn">registerUser</span>(data) { <span class="tok-kw">return</span> <span class="tok-kw">this</span>.<span class="tok-fn">request</span>(<span class="tok-str">"/end-user/new-user"</span>, { method: <span class="tok-str">"POST"</span>, body: data }).<span class="tok-fn">then</span>(<span class="tok-fn">r</span> <span class="tok-kw">=&gt;</span> r.json()).<span class="tok-fn">then</span>(<span class="tok-fn">t</span> <span class="tok-kw">=&gt;</span> (<span class="tok-kw">this</span>.<span class="tok-fn">setTokens</span>(t), t)); }
+  <span class="tok-fn">loginUser</span>(username, password) { <span class="tok-kw">return</span> <span class="tok-kw">this</span>.<span class="tok-fn">request</span>(<span class="tok-str">"/end-user/login"</span>, { method: <span class="tok-str">"POST"</span>, form: { username, password } }).<span class="tok-fn">then</span>(<span class="tok-fn">r</span> <span class="tok-kw">=&gt;</span> r.json()).<span class="tok-fn">then</span>(<span class="tok-fn">t</span> <span class="tok-kw">=&gt;</span> (<span class="tok-kw">this</span>.<span class="tok-fn">setTokens</span>(t), t)); }
+}</pre>
+      <div class="callout">
+        Storing tokens in <code>localStorage</code> is the simplest option and fine to start with — move to an httpOnly cookie set by your own backend if you later need protection from XSS reading the token.
+      </div>
+    </section>
+
+    <section id="console">
+      <h2>Try it live</h2>
+      <p class="lede">Point this at a running instance of your API. Every call below runs through the same token logic as the client above, and the state strip shows exactly what got stored.</p>
+      <div class="console">
+        <div class="console-row">
+          <input id="baseUrl" value="http://localhost:8000" placeholder="Base URL, e.g. http://localhost:8000">
+        </div>
+        <div class="console-tabs">
+          <button class="ctab active" data-panel="p-dev-reg">Register developer</button>
+          <button class="ctab" data-panel="p-dev-login">Developer login</button>
+          <button class="ctab" data-panel="p-project">Create project</button>
+          <button class="ctab" data-panel="p-user-reg">Register end user</button>
+          <button class="ctab" data-panel="p-user-login">End user login</button>
+          <button class="ctab" data-panel="p-user-refresh">Refresh end user token</button>
+        </div>
+
+        <div class="cpanel active" id="p-dev-reg">
+          <div class="field"><label>email</label><input id="dr-email" value="you@company.com"></div>
+          <div class="field"><label>plain_password</label><input id="dr-pass" type="password" value="correct-horse-1"></div>
+          <button class="run-btn" data-action="dev-register">POST /developers/registration</button>
+        </div>
+
+        <div class="cpanel" id="p-dev-login">
+          <div class="field"><label>username (email)</label><input id="dl-email" value="you@company.com"></div>
+          <div class="field"><label>password</label><input id="dl-pass" type="password" value="correct-horse-1"></div>
+          <button class="run-btn" data-action="dev-login">POST /developers/dev-login</button>
+        </div>
+
+        <div class="cpanel" id="p-project">
+          <div class="field"><label>project_name</label><input id="pj-name" value="my-saas"></div>
+          <button class="run-btn" data-action="create-project">POST /developers/projects/new_project</button>
+        </div>
+
+        <div class="cpanel" id="p-user-reg">
+          <div class="field"><label>API-key</label><input id="ur-key" placeholder="paste the project api key"></div>
+          <div class="field"><label>email</label><input id="ur-email" value="jane@example.com"></div>
+          <div class="field"><label>name</label><input id="ur-name" value="Jane"></div>
+          <div class="field"><label>plain_password</label><input id="ur-pass" type="password" value="hunter-2-ok"></div>
+          <button class="run-btn" data-action="user-register">POST /end-user/new-user</button>
+        </div>
+
+        <div class="cpanel" id="p-user-login">
+          <div class="field"><label>API-key</label><input id="ul-key" placeholder="paste the project api key"></div>
+          <div class="field"><label>username (email)</label><input id="ul-email" value="jane@example.com"></div>
+          <div class="field"><label>password</label><input id="ul-pass" type="password" value="hunter-2-ok"></div>
+          <button class="run-btn" data-action="user-login">POST /end-user/login</button>
+        </div>
+
+        <div class="cpanel" id="p-user-refresh">
+          <div class="field"><label>api_key</label><input id="urf-key" placeholder="paste the project api key"></div>
+          <div class="field"><label>refresh_token</label><input id="urf-refresh" placeholder="filled in automatically after register/login"></div>
+          <button class="run-btn" data-action="user-refresh">POST /end-user/refresh-token</button>
+        </div>
+
+        <div class="out" id="consoleOut">// responses will appear here</div>
+        <div class="state-strip">
+          <span><b>developer access_token</b><code id="stateDevAccess">—</code></span>
+          <span><b>project API key</b><code id="stateApiKey">—</code></span>
+          <span><b>end user access_token</b><code id="stateUserAccess">—</code></span>
+          <span><b>end user refresh_token</b><code id="stateUserRefresh">—</code></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="developer-api">
+      <h2>Developer account</h2>
+      <p class="lede">Manage your own login. No <code>API-key</code> header on any of these — your Bearer token is enough.</p>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-post">POST</span><span class="path">/developers/registration</span>
+          <span class="desc">create a developer account</span>
+        </div>
+        <div class="endpoint-body">
+          <h5>BODY (json)</h5>
+          <pre class="block">{ <span class="tok-str">"email"</span>: <span class="tok-str">"you@company.com"</span>, <span class="tok-str">"plain_password"</span>: <span class="tok-str">"..."</span> }</pre>
+          <h5>RESPONSE</h5>
+          <pre class="block">{ <span class="tok-str">"access_token"</span>: <span class="tok-str">"..."</span>, <span class="tok-str">"refresh_token"</span>: <span class="tok-str">"..."</span>, <span class="tok-str">"token_type"</span>: <span class="tok-str">"bearer"</span> }</pre>
+          <p style="color:var(--text-dim); font-size:13px; margin:8px 0 0;">Also sends a verification email in the background — the link's token is confirmed via <code>/developers/verify-developer</code> below.</p>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-post">POST</span><span class="path">/developers/dev-login</span>
+          <span class="desc">exchange credentials for tokens</span>
+        </div>
+        <div class="endpoint-body">
+          <h5>BODY (form-urlencoded — this one, not json)</h5>
+          <pre class="block">username=you<span class="tok-kw">@</span>company.com&password=...</pre>
+          <h5>RESPONSE</h5>
+          <pre class="block">{ <span class="tok-str">"access_token"</span>: <span class="tok-str">"..."</span>, <span class="tok-str">"refresh_token"</span>: <span class="tok-str">"..."</span>, <span class="tok-str">"token_type"</span>: <span class="tok-str">"bearer"</span> }</pre>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-post">POST</span><span class="path">/developers/verify-developer?token=...</span>
+          <span class="desc">confirm the emailed verification token</span>
+        </div>
+        <div class="endpoint-body">
+          <span class="auth-tag">Authorization: Bearer</span>
+          <h5>RESPONSE</h5>
+          <pre class="block">{ <span class="tok-str">"message"</span>: <span class="tok-str">"Verification done"</span> }</pre>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-post">POST</span><span class="path">/developers/verfiy-refresh_token?token=...</span>
+          <span class="desc">mint a new access token</span>
+        </div>
+        <div class="endpoint-body">
+          <p style="color:var(--text-dim); font-size:13px; margin:0 0 8px;">No header needed — the refresh token itself is the credential. Response is the bare token string, not wrapped in an object.</p>
+          <h5>RESPONSE</h5>
+          <pre class="block"><span class="tok-str">"eyJhbGciOi..."</span></pre>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-delete">DELETE</span><span class="path">/developers/delete</span>
+          <span class="desc">delete your account and every project under it</span>
+        </div>
+        <div class="endpoint-body">
+          <span class="auth-tag">Authorization: Bearer</span>
+          <div class="callout warn"><strong>Cascades.</strong> Deleting a developer deletes their projects, which deletes those projects' end users.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="project-api">
+      <h2>Projects</h2>
+      <p class="lede">Each project is an isolated pool of end users with its own API key. All of these need your developer Bearer token.</p>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-post">POST</span><span class="path">/developers/projects/new_project</span>
+          <span class="desc">create a project, get its API key</span>
+        </div>
+        <div class="endpoint-body">
+          <span class="auth-tag">Authorization: Bearer</span>
+          <h5>BODY</h5>
+          <pre class="block">{ <span class="tok-str">"project_name"</span>: <span class="tok-str">"my-saas"</span> }</pre>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-get">GET</span><span class="path">/developers/projects/all</span>
+          <span class="desc">list your projects</span>
+        </div>
+        <div class="endpoint-body"><span class="auth-tag">Authorization: Bearer</span></div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-put">PUT</span><span class="path">/developers/projects/update?project_id=...</span>
+          <span class="desc">rename a project</span>
+        </div>
+        <div class="endpoint-body">
+          <span class="auth-tag">Authorization: Bearer</span>
+          <h5>BODY</h5>
+          <pre class="block">{ <span class="tok-str">"new_name"</span>: <span class="tok-str">"my-saas-v2"</span> }</pre>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-delete">DELETE</span><span class="path">/developers/projects/delete?project_id=...</span>
+          <span class="desc">delete a project and its end users</span>
+        </div>
+        <div class="endpoint-body"><span class="auth-tag">Authorization: Bearer</span></div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-get">GET</span><span class="path">/developers/projects/users?project_id=...</span>
+          <span class="desc">list a project's end users</span>
+        </div>
+        <div class="endpoint-body"><span class="auth-tag">Authorization: Bearer</span></div>
+      </div>
+    </section>
+
+    <section id="enduser-api">
+      <h2>End users</h2>
+      <p class="lede">Everything here needs the project's <code>API-key</code> header. The three below also need the end user's own Bearer token.</p>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-post">POST</span><span class="path">/end-user/new-user</span>
+          <span class="desc">sign a new end user up</span>
+        </div>
+        <div class="endpoint-body">
+          <span class="auth-tag">API-key</span>
+          <h5>BODY</h5>
+          <pre class="block">{ <span class="tok-str">"email"</span>: <span class="tok-str">"jane@example.com"</span>, <span class="tok-str">"name"</span>: <span class="tok-str">"Jane"</span>, <span class="tok-str">"plain_password"</span>: <span class="tok-str">"..."</span> }</pre>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-post">POST</span><span class="path">/end-user/login</span>
+          <span class="desc">exchange credentials for tokens</span>
+        </div>
+        <div class="endpoint-body">
+          <span class="auth-tag">API-key</span>
+          <h5>BODY (form-urlencoded)</h5>
+          <pre class="block">username=jane<span class="tok-kw">@</span>example.com&password=...</pre>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-post">POST</span><span class="path">/end-user/verification?token=...</span>
+          <span class="desc">confirm the emailed verification token</span>
+        </div>
+        <div class="endpoint-body">
+          <span class="auth-tag">API-key</span><span class="auth-tag">Authorization: Bearer</span>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-delete">DELETE</span><span class="path">/end-user/delete</span>
+          <span class="desc">delete the calling end user</span>
+        </div>
+        <div class="endpoint-body">
+          <span class="auth-tag">API-key</span><span class="auth-tag">Authorization: Bearer</span>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="badge badge-post">POST</span><span class="path">/end-user/refresh-token?api_key=...&amp;refresh_token=...</span>
+          <span class="desc">mint a new end-user access token</span>
+        </div>
+        <div class="endpoint-body">
+          <p style="color:var(--text-dim); font-size:13px; margin:0 0 8px;">Both credentials are query parameters here, not headers — that's a deliberate exception to the <code>API-key</code>-header convention used everywhere else in this section (see the note below). No Bearer token needed; the refresh token itself is the credential.</p>
+          <h5>RESPONSE</h5>
+          <pre class="block"><span class="tok-str">"eyJhbGciOi..."</span></pre>
+        </div>
+      </div>
+    </section>
+</main>
+</div>
+
+<footer>Keyforge API reference — generated from the current router and schema definitions. Rename, reskin, and ship it as your own.</footer>
+
+<script>
+  // tab switching
+  document.querySelectorAll('.ctab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.cpanel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  // ---- minimal Keyforge client, mirrors the SDK block above ----
+  class Keyforge {
+    constructor(baseUrl) { this.base = baseUrl.replace(/\/$/, ""); this.devAccess = null; this.devRefresh = null; }
+    async call(path, { method = "GET", body, form, headers = {} } = {}) {
+      const h = { ...headers };
+      let fetchBody;
+      if (form) { h["Content-Type"] = "application/x-www-form-urlencoded"; fetchBody = new URLSearchParams(form); }
+      else if (body) { h["Content-Type"] = "application/json"; fetchBody = JSON.stringify(body); }
+      const res = await fetch(this.base + path, { method, headers: h, body: fetchBody });
+      let data; try { data = await res.json(); } catch (e) { data = null; }
+      return { ok: res.ok, status: res.status, data };
+    }
+  }
+
+  const out = document.getElementById('consoleOut');
+  const stateDevAccess = document.getElementById('stateDevAccess');
+  const stateApiKey = document.getElementById('stateApiKey');
+  const stateUserAccess = document.getElementById('stateUserAccess');
+  const stateUserRefresh = document.getElementById('stateUserRefresh');
+  let devAccess = null, apiKey = null, userAccess = null, userRefresh = null;
+
+  function short(t){ if(!t) return "—"; return t.length > 26 ? t.slice(0,14) + "…" + t.slice(-8) : t; }
+  function log(label, result){
+    const cls = result.ok ? 'ok' : 'err';
+    out.innerHTML = `<span class="${cls}">${label} → ${result.status}</span>\n` + JSON.stringify(result.data, null, 2);
+  }
+  function client(){ return new Keyforge(document.getElementById('baseUrl').value); }
+
+  document.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const kf = client();
+      btn.disabled = true;
+      try {
+        let r;
+        switch (btn.dataset.action) {
+          case 'dev-register':
+            r = await kf.call('/developers/registration', { method:'POST', body:{
+              email: document.getElementById('dr-email').value,
+              plain_password: document.getElementById('dr-pass').value
+            }});
+            if (r.ok) { devAccess = r.data.access_token; stateDevAccess.textContent = short(devAccess); }
+            log('POST /developers/registration', r);
+            break;
+          case 'dev-login':
+            r = await kf.call('/developers/dev-login', { method:'POST', form:{
+              username: document.getElementById('dl-email').value,
+              password: document.getElementById('dl-pass').value
+            }});
+            if (r.ok) { devAccess = r.data.access_token; stateDevAccess.textContent = short(devAccess); }
+            log('POST /developers/dev-login', r);
+            break;
+          case 'create-project':
+            r = await kf.call('/developers/projects/new_project', { method:'POST',
+              headers: devAccess ? { Authorization: `Bearer ${devAccess}` } : {},
+              body:{ project_name: document.getElementById('pj-name').value } });
+            if (r.ok && r.data && r.data.api) {
+              apiKey = r.data.api; stateApiKey.textContent = short(apiKey);
+              document.getElementById('ur-key').value = apiKey;
+              document.getElementById('ul-key').value = apiKey;
+            }
+            log('POST /developers/projects/new_project', r);
+            break;
+          case 'user-register':
+            r = await kf.call('/end-user/new-user', { method:'POST',
+              headers:{ 'API-key': document.getElementById('ur-key').value },
+              body:{
+                email: document.getElementById('ur-email').value,
+                name: document.getElementById('ur-name').value,
+                plain_password: document.getElementById('ur-pass').value
+              }});
+            if (r.ok) {
+              userAccess = r.data.access_token; stateUserAccess.textContent = short(userAccess);
+              userRefresh = r.data.refresh_token; stateUserRefresh.textContent = short(userRefresh);
+              document.getElementById('urf-key').value = document.getElementById('ur-key').value;
+              document.getElementById('urf-refresh').value = userRefresh;
+            }
+            log('POST /end-user/new-user', r);
+            break;
+          case 'user-login':
+            r = await kf.call('/end-user/login', { method:'POST',
+              headers:{ 'API-key': document.getElementById('ul-key').value },
+              form:{ username: document.getElementById('ul-email').value, password: document.getElementById('ul-pass').value }});
+            if (r.ok) {
+              userAccess = r.data.access_token; stateUserAccess.textContent = short(userAccess);
+              userRefresh = r.data.refresh_token; stateUserRefresh.textContent = short(userRefresh);
+              document.getElementById('urf-key').value = document.getElementById('ul-key').value;
+              document.getElementById('urf-refresh').value = userRefresh;
+            }
+            log('POST /end-user/login', r);
+            break;
+          case 'user-refresh':
+            r = await kf.call(`/end-user/refresh-token?api_key=${encodeURIComponent(document.getElementById('urf-key').value)}&refresh_token=${encodeURIComponent(document.getElementById('urf-refresh').value)}`, { method:'POST' });
+            if (r.ok) { userAccess = r.data; stateUserAccess.textContent = short(userAccess); }
+            log('POST /end-user/refresh-token', r);
+            break;
+        }
+      } catch (e) {
+        out.innerHTML = `<span class="err">Request failed: ${e.message}</span>\n\nMost likely the base URL isn't reachable, or the backend's CORS setup is rejecting a browser call from this page — check the console (F12) for the exact error.`;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+</script>
+</body>
+</html>

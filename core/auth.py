@@ -21,7 +21,7 @@ def hash_password(plain_password:str):
 
 def create_access_token(payload:dict):
 
-    expire_time = datetime.now() + timedelta(minutes=settings.ACESS_TOKEN_EXPIRE)
+    expire_time = datetime.now(timezone.utc) + timedelta(minutes=settings.ACESS_TOKEN_EXPIRE)
 
     to_encode = payload.copy()
     to_encode.update({"exp":expire_time})
@@ -32,7 +32,7 @@ def create_access_token(payload:dict):
 
 def create_refresh_token(payload:dict):
 
-    expire_time = datetime.now() + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE)
+    expire_time = datetime.now(timezone.utc) + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE)
 
     to_encode = payload.copy()
     to_encode.update({"exp":expire_time})
@@ -46,7 +46,7 @@ def password_verify(user_entered_password, db_hashed_password):
     return password_util.verify(user_entered_password, db_hashed_password)
 
 
-developer_oauth_schema = OAuth2PasswordBearer(tokenUrl="developers/login", scheme_name="Developers")
+developer_oauth_schema = OAuth2PasswordBearer(tokenUrl="developers/dev-login", scheme_name="Developers")
 enduser_oauth_schema = OAuth2PasswordBearer(tokenUrl="/end-user/login", scheme_name="End-User")
 
 def decode_token(token:str):
@@ -132,4 +132,18 @@ async def get_current_user(access_token:str=Depends(enduser_oauth_schema), db:As
 
     return end_user
 
-    
+
+async def verify_user_refresh_token(refresh_token:str, db:AsyncSession)->str:
+    payload = decode_token(refresh_token)
+
+    stmt = select(End_Users).where(End_Users.email==payload.get("email"), End_Users.project_id==payload.get("project_id"))
+    result = await db.execute(stmt)
+    db_user = result.scalar_one_or_none()
+
+    if db_user:
+        access_token = create_access_token(payload)
+        return access_token
+    else:
+        raise HTTPException(status_code=401, detail="invalid token")
+
+

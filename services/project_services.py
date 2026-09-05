@@ -41,7 +41,13 @@ async def fetch_all_projects(db:AsyncSession, id:int):
     result = await db.execute(stmt)
     projects = result.scalars().all()
 
-    return projects
+    projects_list = []
+
+    for project in projects:
+        item = {"id":project.id,
+                "name":project.project_name,
+                "api":project.api,
+                "created_at":project.created_at}
 
 
 
@@ -81,7 +87,7 @@ async def delete_project(project_id:int, db:AsyncSession, developer_id:int):
     return {"message":"Project delete successfully"}
 
 
-async def fetch_all_users_from_project(project_id:int, db:AsyncSession):
+async def fetch_all_users_from_project(project_id:int, db:AsyncSession, developer:Developers):
 
     redis_cache = await redis_client.get(name=f"project-id{project_id}")
 

@@ -36,7 +36,7 @@ async def create_user(api_key:str, db:AsyncSession, data:CreateEndUser)->dict:
     await db.commit()
     await db.refresh(end_user)
 
-    payload = {"id":end_user.id, "email":end_user.email}
+    payload = {"id":end_user.id, "email":end_user.email, "project_id":end_user.project_id}
 
     access_token = create_access_token(payload)
     refresh_token = create_refresh_token(payload)
@@ -80,7 +80,7 @@ async def login(api_key:str, data:OAuth2PasswordRequestForm, db:AsyncSession):
     result = password_verify(data.password, end_user.user_end_hashedpass)
 
     if result:
-        payload = payload = {"id":end_user.id, "email":end_user.email}
+        payload = {"id":end_user.id, "email":end_user.email, "project_id":end_user.project_id}
 
         access_token = create_access_token(payload)
         refresh_token = create_refresh_token(payload)
