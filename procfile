@@ -1,0 +1,2 @@
+web: uvicorn main:app --reload
+worker: celery -A core.celery.celery worker --loglevel=info --pool=solo
